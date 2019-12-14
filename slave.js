@@ -16,12 +16,12 @@ const send = (message) => {
 
             channel.sendToQueue(queue, Buffer.from(message));
 
-            console.log(" [x] Reproting Status %s", message);
+            // console.log(" [x] Reproting Status %s", message);
         });
     });
 }
 
-const justifyState = (performance) => {
+const reportState = (performance) => {
     send({
         process: 'status',
         satus: 'UP',
@@ -30,35 +30,36 @@ const justifyState = (performance) => {
     });
 }
 
-
 const getPerformance = () => {
     let freeCPUPercentage = 0;
     os.cpuFree(freeCPU => {
         performance = freeCPU * os.freemem();
-        justifyState(performance);
+        reportState(performance);
     });
+}
+
+const runQuery = (message) => {
+    var rawData = message.content.toString();
+    var objectData = JSON.parse(rawData);
+
 }
 
 setInterval(() => {
     getPerformance();
 }, 2000);
 
-const runQuery = (params) => {
-    console.log(params)
-}
+amqp.connect('amqp://localhost', function(error0, connection) {
+    if (error0) { throw error0; }
 
-// amqp.connect('amqp://localhost', function(error0, connection) {
-//     if (error0) { throw error0; }
+    connection.createChannel(function(error1, channel) {
+        if (error1) { throw error1; }
 
-//     connection.createChannel(function(error1, channel) {
-//         if (error1) { throw error1; }
+        channel.assertQueue(slaveId, {
+            durable: false
+        });
 
-//         channel.assertQueue(slaveId, {
-//             durable: false
-//         });
+        console.log(`[*] ${slaveId} is waiting for your commands`);
 
-//         console.log(`[*] ${slaveId} is waiting for your commands`);
-
-//         channel.consume(slaveId, runQuery, { noAck: true });
-//     });
-// });
+        channel.consume(slaveId, runQuery, { noAck: true });
+    });
+});
