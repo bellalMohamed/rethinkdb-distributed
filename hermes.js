@@ -23,12 +23,10 @@ let connectedServers = [];
 
 const reportStatus = (status) => {
     updateServerStats(status.slaveId, status.satus, status.performance)
-    // console.log(connectedServers.length)
     console.log(connectedServers)
 }
 
 const updateServerStats = (slaveId, status, performance) => {
-
     let currentServer = getServerBySlaveId(slaveId)
 
     if (currentServer == false) {
