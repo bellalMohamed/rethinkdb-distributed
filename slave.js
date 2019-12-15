@@ -1,7 +1,8 @@
 var os = require('os-utils');
 const amqp = require('amqplib/callback_api');
+const r = require('rethinkdb');
 const queue = 'hermes';
-const slaveId = 'slave-3';
+const slaveId = 'slave-2';
 
 const send = (message) => {
     amqp.connect('amqp://localhost', function(error0, connection) {
@@ -15,8 +16,6 @@ const send = (message) => {
             message = JSON.stringify(message);
 
             channel.sendToQueue(queue, Buffer.from(message));
-
-            // console.log(" [x] Reproting Status %s", message);
         });
     });
 }
@@ -42,6 +41,18 @@ const runQuery = (message) => {
     var rawData = message.content.toString();
     var objectData = JSON.parse(rawData);
 
+    r.connect({host: 'localhost', port: 28015}, function(err, conn) {
+        if (err) throw err;
+        connection = conn;
+
+        r.db('test').table('purchase').slice(objectData['from'], objectData['to']).sum('receipt').run(conn, (err, receiptSum) => {
+            send({
+                'process': 'finished-sum',
+                'slaveId': slaveId,
+                'result': receiptSum,
+            })
+        });
+    })
 }
 
 setInterval(() => {

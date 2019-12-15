@@ -1,26 +1,27 @@
-var os = require('os-utils');
-const amqp = require('amqplib/callback_api');
-const queue = 'hermes';
-const slaveId = 'slave-3';
+function myFunction(numberOfElements, cpuMemoryPerSlave) {
+   var mx = Math.max(...cpuMemoryPerSlave);
+   var arrayLength = cpuMemoryPerSlave.length;
+   var sum = 0;
 
-const send = (message) => {
-    amqp.connect('amqp://localhost', function(error0, connection) {
-        if (error0) {throw error0; }
-        connection.createChannel(function(error1, channel) {
-            if (error1) { throw error1; }
+    for (var i = 0; i < arrayLength; i++)
+    {
+        cpuMemoryPerSlave[i] /= mx;
+        sum += cpuMemoryPerSlave[i];
+    }
 
-            channel.assertQueue(slaveId, {
-                durable: false
-            });
-            message = JSON.stringify(message);
+    sum = Math.ceil(sum);
 
-            channel.sendToQueue(slaveId, Buffer.from(message));
+    var patch  = Math.floor(numberOfElements / sum);
 
-            // console.log(" [x] Reproting Status %s", message);
-        });
-    });
-}
+    var lastIndex = 0;
+    indexArr = [];
+    for (var i = 0; i < arrayLength - 1; i++)
+    {
+        var holder  = Math.round (patch * cpuMemoryPerSlave[i]);
+        indexArr.push([lastIndex , lastIndex + holder]);
+        lastIndex = lastIndex + holder + 1 ;
+    }
 
-send({
-    'data': 'are you here',
-})
+    indexArr.push([lastIndex ,  numberOfElements - 1]);
+    return indexArr ;
+  }
