@@ -3,7 +3,7 @@ var faker = require('faker');
 
 var connection = null;
 
-r.connect( {host: 'localhost', port: 28015}, function(err, conn) {
+r.connect( {host: '192.168.43.229', port: 28015}, function(err, conn) {
     if (err) throw err;
     connection = conn;
 

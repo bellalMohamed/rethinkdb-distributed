@@ -5,7 +5,7 @@ const queue = 'hermes';
 const slaveId = 'slave-2';
 
 const send = (message) => {
-    amqp.connect('amqp://localhost', function(error0, connection) {
+    amqp.connect('amqp://192.168.43.246', function(error0, connection) {
         if (error0) {throw error0; }
         connection.createChannel(function(error1, channel) {
             if (error1) { throw error1; }
@@ -41,7 +41,7 @@ const runQuery = (message) => {
     var rawData = message.content.toString();
     var objectData = JSON.parse(rawData);
 
-    r.connect({host: 'localhost', port: 28015}, function(err, conn) {
+    r.connect({host: '192.168.43.229', port: 28015}, function(err, conn) {
         if (err) throw err;
         connection = conn;
 
@@ -59,7 +59,7 @@ setInterval(() => {
     getPerformance();
 }, 2000);
 
-amqp.connect('amqp://localhost', function(error0, connection) {
+amqp.connect('amqp://192.168.43.246', function(error0, connection) {
     if (error0) { throw error0; }
 
     connection.createChannel(function(error1, channel) {
