@@ -40,8 +40,8 @@ const getPerformance = () => {
 const runQuery = (message) => {
     var rawData = message.content.toString();
     var objectData = JSON.parse(rawData);
-    console.log(objectData);
-    r.connect({host: '192.168.43.229', port: 28015}, function(err, conn) {
+
+    r.connect({host: 'localhost', port: 28015}, function(err, conn) {
         if (err) throw err;
         connection = conn;
 
