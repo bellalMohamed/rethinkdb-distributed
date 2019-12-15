@@ -15,7 +15,8 @@ r.connect( {host: '192.168.43.229', port: 28015}, function(err, conn) {
     //     }).run(connection, () => {})
     // }
 
-    r.table('purchase').run(conn, function(errro, cursor) {
+    r.table('purchase').run(conn, function(error, cursor) {
+        // console.log(error)
         // cursor.each(console.log);
     })
 

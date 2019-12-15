@@ -14,7 +14,6 @@ const send = (message) => {
                 durable: false
             });
             message = JSON.stringify(message);
-            console.log("sending:", message);
 
             channel.sendToQueue(queue, Buffer.from(message));
         });
@@ -41,7 +40,7 @@ const getPerformance = () => {
 const runQuery = (message) => {
     var rawData = message.content.toString();
     var objectData = JSON.parse(rawData);
-
+    console.log(objectData);
     r.connect({host: '192.168.43.229', port: 28015}, function(err, conn) {
         if (err) throw err;
         connection = conn;

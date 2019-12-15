@@ -8,6 +8,7 @@ const handleMessage = (message) => {
     var objectData = JSON.parse(rawData);
 
     // console.log("Hermes recieved", objectData);
+    console.log(objectData)
 
     const params = typeof objectData.params !== 'undefined' ? objectData.params : null;
 
