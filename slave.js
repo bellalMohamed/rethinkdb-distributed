@@ -14,6 +14,7 @@ const send = (message) => {
                 durable: false
             });
             message = JSON.stringify(message);
+            console.log("sending:", message);
 
             channel.sendToQueue(queue, Buffer.from(message));
         });
