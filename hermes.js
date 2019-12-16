@@ -2,16 +2,14 @@ const amqp = require('amqplib/callback_api');
 const r = require('rethinkdb');
 
 const queue = 'hermes';
+let tempParams = null;
 
 const handleMessage = (message) => {
     var rawData = message.content.toString();
     var objectData = JSON.parse(rawData);
 
-    // console.log("Hermes recieved", objectData);
-    console.log(objectData)
-
     const params = typeof objectData.params !== 'undefined' ? objectData.params : null;
-
+    tempParams = params;
     if (objectData['process'] === 'sum') {
         sum(params);
     }
@@ -26,6 +24,7 @@ const handleMessage = (message) => {
 }
 
 let connectedServers = [];
+let workingServersCount = 0;
 
 const reportStatus = (status) => {
     updateServerStats(status.slaveId, status.satus, status.performance)
@@ -39,6 +38,7 @@ const updateServerStats = (slaveId, status, performance) => {
             slaveId: slaveId,
             status: status,
             performance: performance,
+            reported: Date.now(),
         };
         connectedServers.push(Object.assign({}, m));
     }
@@ -47,6 +47,17 @@ const updateServerStats = (slaveId, status, performance) => {
         if (connectedServers[server].slaveId == slaveId) {
             connectedServers[server].status = status;
             connectedServers[server].performance = performance;
+            connectedServers[server].reported = Date.now();
+        }
+    }
+
+    // kickDownServers()
+}
+
+const kickDownServers = () => {
+    for (var i = 0; i < connectedServers.length; i++) {
+        if (Date.now() - connectedServers[i].reported > 2000) {
+            connectedServers.splice(i, 1);
         }
     }
 }
@@ -64,8 +75,10 @@ const getServerBySlaveId = (slaveId) => {
 let sumResult = [];
 
 const sum = (params) => {
+    // startCheckingSignal();
     getTotalRecordsCount((count) => {
         const servers = connectedServers;
+        workingServersCount = servers.length;
         const distributedLoad = loadDistributer(count, activeServersPerformance(servers));
         sumResult = normalizeSumResult(servers);
 
@@ -105,7 +118,7 @@ const finishedSum = (result) => {
             sumResult[i].finished = true;
         }
     }
-    console.log(result);
+
     checkSumResultCompletedAndPush();
 }
 
@@ -123,6 +136,16 @@ const checkSumResultCompletedAndPush = () => {
         'result': finalResult,
     })
 }
+
+// const startCheckingSignal = (isOn) => {
+//     let checkInt = setInterval(() => {
+//         if (workingServersCount.length !== connectedServers.length) {
+//             sum(tempParams);
+//         } else {
+//             clearInterval(checkInt);
+//         }
+//     }, 1000);
+// }
 
 const getTotalRecordsCount = (callback) => {
     r.connect({host: 'localhost', port: 28015}, function(err, conn) {
