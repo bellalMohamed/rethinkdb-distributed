@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "^0.5.5",
+    "amqplib": "^0.10.3",
     "faker": "^4.1.0",
     "os-utils": "0.0.14",
     "rethinkdb": "^2.4.1"
